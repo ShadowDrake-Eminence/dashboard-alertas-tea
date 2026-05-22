@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Operativo - Alertas TEA</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .alerta { background: #ffdddd; padding: 15px; margin: 10px 0; border-left: 5px solid red; }
+    </style>
+</head>
+<body>
+    <h1>Monitor de Estrés en Vivo</h1>
+    <div id="contenedor-alertas">Esperando telemetría...</div>
+
+    <script>
+        // 1. Aquí pondrás los datos que te da Supabase al crear el proyecto
+        const SUPABASE_URL = 'TU_URL_DE_SUPABASE'; 
+        const SUPABASE_KEY = 'TU_KEY_PUBLICA_DE_SUPABASE';
+        
+        const supabaseUrl = SUPABASE_URL;
+        const supabaseKey = SUPABASE_KEY;
+        // La variable global de supabase está disponible gracias al script de arriba
+        const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const contenedor = document.getElementById('contenedor-alertas');
+
+        // 2. Nos suscribimos a la base de datos
+        client.channel('alertas-en-vivo')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'telemetria_historica' }, payload => {
+            console.log('¡Nueva alerta recibida!', payload.new);
+            
+            // 3. Mostramos la alerta en la pantalla
+            const nuevaAlerta = document.createElement('div');
+            nuevaAlerta.className = 'alerta';
+            nuevaAlerta.innerHTML = `<strong>Alerta detectada:</strong> ${JSON.stringify(payload.new)}`;
+            contenedor.prepend(nuevaAlerta);
+        })
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('Conectado y escuchando...');
+                contenedor.innerHTML = 'Conectado. Esperando datos de las gafas...';
+            }
+        });
+    </script>
+</body>
+</html>
