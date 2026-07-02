@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Monitor Clínico - Telemetría TEA</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <style>
         body { 
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
@@ -57,8 +58,6 @@
 
     <script>
         // Parámetros de autenticación del servidor
-        const SUPABASE_URL = 'https://ccevknouobhmixdcqiac.supabase.co'; 
-        const SUPABASE_KEY = 'sb_publishable_Bj2bEZSXHYNWUm0FDviVDA_KJ_es8DQ';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const contenedor = document.getElementById('contenedor-registros');

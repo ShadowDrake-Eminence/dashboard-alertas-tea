@@ -1,0 +1,19 @@
+name: CI Pipeline_dashboard-alertas-tea
+
+#Se ejecuta automáticamente cada vez que occurre un push o pull request a la rama main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs: #tareas que se ejecutan en paralelo, cada una en su propia máquina virtual
+  test: #Nombre de la tarea
+    runs-on: ubuntu-latest #GitHub levanta una máquina virtual de Ubuntu
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4 #Copia el contenido del repositorio a la máquina virtual
+
+      - name: Validar el HTML
+        run: npx htmlhint index.html # revisa que el HTML no tenga errores (tags sin cerrar, etc.)
