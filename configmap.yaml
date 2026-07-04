@@ -4,5 +4,5 @@ metadata:
   name: dashboard-alertas-tea-config
   namespace: workshop
 data:
-  SUPABASE_URL: "https://TU_PROYECTO.supabase.co"
-  SUPABASE_KEY: "tu-anon-key"
+  SUPABASE_URL: "https://ccevknouobhmixdcqiac.supabase.co"
+  SUPABASE_KEY: "sb_publishable_Bj2bEZSXHYNWUm0FDviVDA_KJ_es8DQ"
