@@ -1,0 +1,12 @@
+services:
+  dashboard-alertas-tea:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dashboard-alertas-tea
+    ports:
+      - "8080:80"
+    environment:
+      SUPABASE_URL: ${SUPABASE_URL:-https://TU_PROYECTO.supabase.co}
+      SUPABASE_KEY: ${SUPABASE_KEY:-anon_key}
+    restart: unless-stopped

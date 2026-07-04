@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-alertas-tea-config
+  namespace: workshop
+data:
+  SUPABASE_URL: "https://TU_PROYECTO.supabase.co"
+  SUPABASE_KEY: "tu-anon-key"

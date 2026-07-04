@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitor Clínico - Telemetría TEA</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            background-color: #f4f7f6; 
+            color: #333333;
+            padding: 20px; 
+            max-width: 900px;
+            margin: auto;
+        }
+        h1 { 
+            color: #2c3e50; 
+            border-bottom: 2px solid #bdc3c7; 
+            padding-bottom: 10px; 
+            font-weight: 500; 
+        }
+        #estado-conexion { 
+            color: #7f8c8d; 
+            margin-bottom: 20px; 
+            font-size: 0.9em; 
+        }
+        
+        .registro-clinico { 
+            background: #ffffff; 
+            padding: 15px 25px; 
+            margin: 12px 0; 
+            border-radius: 6px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        /* Código de clasificación de estado */
+        .estado-basal { border-left: 6px solid #27ae60; }
+        .alerta-clinica { border-left: 6px solid #c0392b; background-color: #fdf2f2; }
+        
+        .biometria { display: flex; gap: 30px; }
+        .dato-grupo { display: flex; flex-direction: column; }
+        .valor { font-size: 1.4em; font-weight: 600; color: #2c3e50; }
+        .unidad { font-size: 0.75em; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .diagnostico { font-weight: 600; font-size: 1.1em; letter-spacing: 0.5px; }
+        .texto-basal { color: #27ae60; }
+        .texto-alerta { color: #c0392b; }
+    </style>
+</head>
+<body>
+    <h1>Monitor Clínico de Telemetría Biométrica</h1>
+    <div id="estado-conexion">Iniciando protocolos de enlace con hardware de monitorización...</div>
+    <div id="contenedor-registros"></div>
+
+    <script>
+        // Parámetros de autenticación del servidor
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const contenedor = document.getElementById('contenedor-registros');
+        const estadoDiv = document.getElementById('estado-conexion');
+
+        // Suscripción al flujo de datos en tiempo real
+        client.channel('monitorizacion-clinica')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'telemetria_historica' }, payload => {
+            
+            // Extracción y parseo de las variables fisiológicas
+            const data = payload.new.payload;
+            const bpm = data.biometria.ritmo_cardiaco;
+            const resp = data.biometria.frecuencia_respiratoria;
+            const nivelEstres = data.zona_estres;
+            const esAnomalia = nivelEstres.includes('ALTA');
+
+            // Generación de la interfaz de lectura
+            const registro = document.createElement('div');
+            registro.className = `registro-clinico ${esAnomalia ? 'alerta-clinica' : 'estado-basal'}`;
+            
+            registro.innerHTML = `
+                <div class="biometria">
+                    <div class="dato-grupo">
+                        <span class="valor">${bpm}</span>
+                        <span class="unidad">Frecuencia Cardíaca (bpm)</span>
+                    </div>
+                    <div class="dato-grupo">
+                        <span class="valor">${resp}</span>
+                        <span class="unidad">Tasa Respiratoria (rpm)</span>
+                    </div>
+                </div>
+                <div class="diagnostico ${esAnomalia ? 'texto-alerta' : 'texto-basal'}">
+                    ${esAnomalia ? 'ANOMALÍA DETECTADA (ESTRÉS ALTO)' : 'PARÁMETROS BASALES'}
+                </div>
+            `;
+            
+            contenedor.prepend(registro);
+        })
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                estadoDiv.innerHTML = 'Enlace establecido. Recibiendo flujo de telemetría biométrica de forma activa.';
+            } else {
+                estadoDiv.innerHTML = 'Error de conexión. Verifique la integridad del enlace de datos.';
+            }
+        });
+    </script>
+</body>
+</html>

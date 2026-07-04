@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-alertas-tea
+  namespace: workshop
+spec:
+  selector:
+    app: dashboard-alertas-tea
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
